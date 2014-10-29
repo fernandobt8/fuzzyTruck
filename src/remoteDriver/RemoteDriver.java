@@ -51,6 +51,9 @@ public class RemoteDriver {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			if (angle > 360) {
+				angle %= 360;
+			}
 
 			System.out.println("x: " + x + " y: " + y + " angle: " + angle);
 
@@ -63,11 +66,11 @@ public class RemoteDriver {
 			fis.evaluate();
 
 			double teste = fis.getVariable("turn").getLatestDefuzzifiedValue();
-
-			System.out.println("volante: " + teste);
 			// double teste = Double.valueOf(stdIn.readLine());
+
 			// /////////////////////////////////////////////////////////////////////////////// Acaba sua modificacao aqui
 			// envio da acao do volante
+			System.out.println("volante: " + teste);
 			out.println(teste);
 
 			// requisicao da posicao do caminhao
