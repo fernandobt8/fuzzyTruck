@@ -49,8 +49,6 @@ public class RemoteDriver {
 
 			System.out.println("x: " + x + " y: " + y + " angle: " + angle);
 
-			// ///////////////////////////////////////////////////////////////////////////////////
-			// TODO sua lógica fuzzy vai aqui use os valores de x,y e angle obtidos. x e y estao em [0,1] e angulo [0,360)
 			FIS fis = FIS.load("./src/remoteDriver/fuzzyTruck.fcl", true);
 
 			fis.setVariable("x", x);
@@ -59,8 +57,8 @@ public class RemoteDriver {
 
 			fis.evaluate();
 
-			double teste = fis.getVariable("turn").getLatestDefuzzifiedValue();
-
+			// double teste = fis.getVariable("turn").getLatestDefuzzifiedValue();
+			double teste = Double.valueOf(stdIn.readLine());
 			// /////////////////////////////////////////////////////////////////////////////// Acaba sua modificacao aqui
 			// envio da acao do volante
 			out.println(teste);

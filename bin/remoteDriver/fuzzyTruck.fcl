@@ -14,15 +14,20 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY x
-    TERM virar := (0, 1) (4, 0) ; 
+    TERM esquerda := (0, 1) (0.5, 0); 
+    TERM direita := (0.5, 0) (1, 1); 
 END_FUZZIFY
 
 FUZZIFY y
-    TERM virar := (0, 1) (1, 1) (3,0) ;
+    TERM cima := (0, 1) (0.5, 0);
+    TERM baixo := (0.5, 0) (1, 1);
 END_FUZZIFY
 
 FUZZIFY angle
-    TERM virar := (0, 1) (1, 1) (3,0) ;
+    TERM west := (0, 1) (90, 0) (270, 0)(360, 1);
+    TERM south := (0, 0) (90, 1) (180, 0);
+    TERM east := (90, 0) (180, 1) (270, 0);
+    TERM north := (180, 0)(270, 1) (360, 0);
 END_FUZZIFY
 
 DEFUZZIFY turn
@@ -44,7 +49,7 @@ RULEBLOCK No1
     // Use 'max' accumulation method
     ACCU : MAX;
 
-    RULE 1 : IF x IS virar
+    RULE 1 : IF x IS esquerda
                 THEN turn IS esquerda;
 //
 //    RULE 2 : IF service IS good 
