@@ -46,6 +46,11 @@ public class RemoteDriver {
 			x = Double.valueOf(st.nextToken()).doubleValue();
 			y = Double.valueOf(st.nextToken()).doubleValue();
 			angle = Double.valueOf(st.nextToken()).doubleValue();
+			try {
+				Thread.sleep(500L);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			System.out.println("x: " + x + " y: " + y + " angle: " + angle);
 
@@ -57,8 +62,10 @@ public class RemoteDriver {
 
 			fis.evaluate();
 
-			// double teste = fis.getVariable("turn").getLatestDefuzzifiedValue();
-			double teste = Double.valueOf(stdIn.readLine());
+			double teste = fis.getVariable("turn").getLatestDefuzzifiedValue();
+
+			System.out.println("volante: " + teste);
+			// double teste = Double.valueOf(stdIn.readLine());
 			// /////////////////////////////////////////////////////////////////////////////// Acaba sua modificacao aqui
 			// envio da acao do volante
 			out.println(teste);
