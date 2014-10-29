@@ -1,0 +1,57 @@
+// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK truck
+
+// Define input variables
+VAR_INPUT
+    x : REAL;
+    y : REAL;
+    angle : REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT
+    turn : REAL;
+END_VAR
+
+FUZZIFY x
+    TERM virar := (0, 1) (4, 0) ; 
+END_FUZZIFY
+
+FUZZIFY y
+    TERM virar := (0, 1) (1, 1) (3,0) ;
+END_FUZZIFY
+
+FUZZIFY angle
+    TERM virar := (0, 1) (1, 1) (3,0) ;
+END_FUZZIFY
+
+DEFUZZIFY turn
+    TERM direita := (-1,1) (0,0);
+    TERM reto := (0,1);
+    TERM esquerda := (0,0) (1,1);
+    // Use 'Center Of Gravity' defuzzification method
+    METHOD : COG;
+    // Default value is 0 (if no rule activates defuzzifier)
+    DEFAULT := 0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+    // Use 'min' for 'and' (also implicit use 'max'
+    // for 'or' to fulfill DeMorgan's Law)
+    AND : MIN;
+    // Use 'min' activation method
+    ACT : MIN;
+    // Use 'max' accumulation method
+    ACCU : MAX;
+
+    RULE 1 : IF x IS virar
+                THEN turn IS esquerda;
+//
+//    RULE 2 : IF service IS good 
+//                THEN tip IS average; 
+//
+//    RULE 3 : IF service IS excellent AND food IS delicious 
+//                THEN tip is generous;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

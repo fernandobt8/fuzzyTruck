@@ -1,15 +1,11 @@
 package server;
-import java.awt.BorderLayout;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-
 
 public class Driver extends Thread {
 
@@ -32,105 +28,114 @@ public class Driver extends Thread {
 
 	private ServerSocket server;
 
-	public Driver(Quadro quadro, int x, int y,double stepSize, double angulo, int sockPort) {
+	public Driver(Quadro quadro, int x, int y, double stepSize, double angulo, int sockPort) {
 		this.quadro = quadro;
-		t = new Truck(x, y,stepSize, angulo);
+		this.t = new Truck(x, y, stepSize, angulo);
 		this.sockPort = sockPort;
 	}
 
-	public void setTruckPosition(int x, int y , double angulo) {
-		t.setRotation(angulo);
-		t.setPos(x, y);
+	public void setTruckPosition(int x, int y, double angulo) {
+		this.t.setRotation(angulo);
+		this.t.setPos(x, y);
 	}
 
-	public void stopSock(){
+	@SuppressWarnings("deprecation")
+	public void stopSock() {
 		this.stop();
 		try {
-			if(out!=null)
-				out.close();
-			if(in!=null)
-				in.close();
-			if(clientSocket!=null && !clientSocket.isClosed())
-				clientSocket.close();
-			if(server!=null && !server.isClosed())
-				server.close();
+			if (this.out != null) {
+				this.out.close();
+			}
+			if (this.in != null) {
+				this.in.close();
+			}
+			if (this.clientSocket != null && !this.clientSocket.isClosed()) {
+				this.clientSocket.close();
+			}
+			if (this.server != null && !this.server.isClosed()) {
+				this.server.close();
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}
 
+	@Override
 	public void run() {
-		running = true;
-		quadro.clear();
-		quadro.addTruckImage(t);
+		this.running = true;
+		this.quadro.clear();
+		this.quadro.addTruckImage(this.t);
 		int stepsUsed = 10000;
 
-		server = null;
-		try{
-			server = new ServerSocket(sockPort); 
+		this.server = null;
+		try {
+			this.server = new ServerSocket(this.sockPort);
 		} catch (IOException e) {
-			System.out.println("Could not listen on port " + sockPort);
+			System.out.println("Could not listen on port " + this.sockPort);
 			System.exit(-1);
 		}
 
-		System.out.println("Listening on port " + sockPort);
-		clientSocket = null;
+		System.out.println("Listening on port " + this.sockPort);
+		this.clientSocket = null;
 		try {
-			clientSocket = server.accept();
+			this.clientSocket = this.server.accept();
 		} catch (IOException e) {
-			System.err.println("Accept failed on " + sockPort);
+			System.err.println("Accept failed on " + this.sockPort);
 			System.exit(1);
 		}
 
-		System.out.println("Client connected on port " + sockPort);
+		System.out.println("Client connected on port " + this.sockPort);
 
 		try {
 
-			out = new PrintWriter(clientSocket.getOutputStream(), true);
-			in = new BufferedReader(
-					new InputStreamReader(
-							clientSocket.getInputStream()));
+			this.out = new PrintWriter(this.clientSocket.getOutputStream(), true);
+			this.in = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
 			String inputLine;
 			stepsUsed = 0;
 
-			while (running && clientSocket.isConnected() && (inputLine = in.readLine()) != null) {
-				if (inputLine.contains("r")){
-					out.println(((double)t.getPos().x)/(double)quadro.getWidth() + "\t" + ((double)t.getPos().y)/(double)quadro.getHeight() + "\t" + t.getRotation());
-				}else{
+			while (this.running && this.clientSocket.isConnected() && (inputLine = this.in.readLine()) != null) {
+				if (inputLine.contains("r")) {
+					this.out.println((double) this.t.getPos().x / (double) this.quadro.getWidth() + "\t" + (double) this.t.getPos().y / (double) this.quadro.getHeight() + "\t"
+							+ this.t.getRotation());
+				} else {
 					double steer = Double.valueOf(inputLine);
-					if (steer>1)
-						t.stepManeuver(1);
-					else if (steer<-1)
-						t.stepManeuver(-1);
-					else
-						t.stepManeuver(steer);
+					if (steer > 1) {
+						this.t.stepManeuver(1);
+					} else if (steer < -1) {
+						this.t.stepManeuver(-1);
+					} else {
+						this.t.stepManeuver(steer);
+					}
 
-					quadro.addTruckImage(t);
+					this.quadro.addTruckImage(this.t);
 					stepsUsed++;
 				}
-				
-				if (t.getPos().x>quadro.getWidth()+200 || t.getPos().y>quadro.getHeight() || t.getPos().x<-200 || t.getPos().y<-200 || stepsUsed>2000)
+
+				if (this.t.getPos().x > this.quadro.getWidth() + 200 || this.t.getPos().y > this.quadro.getHeight() || this.t.getPos().x < -200 || this.t.getPos().y < -200
+						|| stepsUsed > 2000) {
 					break;
+				}
 			}
-			out.close();
-			in.close();
-			clientSocket.close();
-			server.close();
+			this.out.close();
+			this.in.close();
+			this.clientSocket.close();
+			this.server.close();
 
 		} catch (Exception e) {
-			System.err.println("Something else went wrong on " + sockPort);
+			System.err.println("Something else went wrong on " + this.sockPort);
 			System.exit(1);
 		}
 
-		double score = 10000-stepsUsed*t.stepSize - Math.abs(t.getPos().x-quadro.getWidth()/2) - Math.abs(90-t.getRotation()) - (quadro.getHeight()-t.getPos().y);
-		System.out.println("Client disconnected on " + sockPort);
-		System.out.println(sockPort + " Final x: " + t.getPos().x + " final y: "+ t.getPos().y + " final angle: " + t.getRotation() + " steps used: " + stepsUsed);
-		System.out.println("Score of " + sockPort + " is: " + score);
-		
-		quadro.setScore(score);
+		double score = 10000 - stepsUsed * this.t.stepSize - Math.abs(this.t.getPos().x - this.quadro.getWidth() / 2) - Math.abs(90 - this.t.getRotation())
+				- (this.quadro.getHeight() - this.t.getPos().y);
+		System.out.println("Client disconnected on " + this.sockPort);
+		System.out.println(this.sockPort + " Final x: " + this.t.getPos().x + " final y: " + this.t.getPos().y + " final angle: " + this.t.getRotation() + " steps used: "
+				+ stepsUsed);
+		System.out.println("Score of " + this.sockPort + " is: " + score);
+
+		this.quadro.setScore(score);
 
 	}
-
 
 }
