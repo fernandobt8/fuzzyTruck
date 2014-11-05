@@ -14,13 +14,13 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY x
-    TERM left := (-0.5,1) (0.3, 0.95) (0.4, 0.05)  (0.5, 0);
-    TERM right := (0.5, 0) (0.6, 0.05) (0.7, 0.95) (1.5, 1);
+    TERM left := (-0.5,1) (0.35, 0.85) (0.42, 0.09)  (0.5, 0);
+    TERM right := (0.5, 0) (0.58, 0.09) (0.65, 0.85) (1.5, 1);
 END_FUZZIFY
 
 FUZZIFY y
-    TERM down := (-0.5, 0) (1, 0.4);
-    TERM dungerDown := (0.8, 0) /*(0.75, 0.7)*/ (0.8, 0.95) (1, 1);
+    TERM down := (-0.5, 0) /*(0.8, 0.7)*/ (1, 0.5);
+    TERM dungerDown := (0.84, 0) /*(0.75, 0.7)*/ (0.85, 0.9) (1, 1);
 END_FUZZIFY
 
 FUZZIFY angle
@@ -31,8 +31,8 @@ FUZZIFY angle
 END_FUZZIFY
 
 DEFUZZIFY turn
-    TERM turnRight := (-1.6,1) (0,0);
-    TERM turnLeft := (0,0) (1.6,1);
+    TERM turnRight := (-1.5,1) (0,0);
+    TERM turnLeft := (0,0) (1.5,1);
     // Use 'Center Of Gravity' defuzzification method
     METHOD : COG;
     // Default value is 0 (if no rule activates defuzzifier)

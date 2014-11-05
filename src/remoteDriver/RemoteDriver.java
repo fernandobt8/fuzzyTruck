@@ -47,7 +47,7 @@ public class RemoteDriver {
 			y = Double.valueOf(st.nextToken()).doubleValue();
 			angle = Double.valueOf(st.nextToken()).doubleValue();
 			try {
-				Thread.sleep(500L);
+				Thread.sleep(100L);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
