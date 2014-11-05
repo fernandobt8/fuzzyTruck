@@ -14,26 +14,25 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY x
-    TERM esquerda := (0, 1) (0.5, 0); 
-    TERM direita := (0.5, 0) (1, 1); 
+    TERM left := (-0.5,1) (0.3, 0.95) (0.4, 0.05)  (0.5, 0);
+    TERM right := (0.5, 0) (0.6, 0.05) (0.7, 0.95) (1.5, 1);
 END_FUZZIFY
 
 FUZZIFY y
-    TERM cima := (0, 1) (0.5, 0);
-    TERM baixo := (0.5, 0) (1, 1);
+    TERM down := (-0.5, 0) (1, 0.4);
+    TERM dungerDown := (0.8, 0) /*(0.75, 0.7)*/ (0.8, 0.95) (1, 1);
 END_FUZZIFY
 
 FUZZIFY angle
-    TERM west := (0, 1) (90, 0) (270, 0)(360, 1);
-    TERM south := (0, 0) (90, 1) (180, 0);
-    TERM east := (90, 0) (180, 1) (270, 0);
-    TERM north := (180, 0)(270, 1) (360, 0);
+	TERM west := (0, 1) (90, 0) (270, 0)(360, 1);
+	TERM south := (0, 0) (90, 1) (180, 0);
+	TERM east := (90, 0) (180, 1) (270, 0);
+	TERM north := (180, 0)(270, 1) (360, 0);
 END_FUZZIFY
 
 DEFUZZIFY turn
-    TERM direita := (-1,1) (0,0);
-    TERM reto := (0,1);
-    TERM esquerda := (0,0) (1,1);
+    TERM turnRight := (-1.6,1) (0,0);
+    TERM turnLeft := (0,0) (1.6,1);
     // Use 'Center Of Gravity' defuzzification method
     METHOD : COG;
     // Default value is 0 (if no rule activates defuzzifier)
@@ -48,30 +47,32 @@ RULEBLOCK No1
     ACT : MIN;
     // Use 'max' accumulation method
     ACCU : MAX;
-
-    RULE 1 : IF x IS esquerda AND angle IS south
-                THEN turn IS esquerda;
     
-    RULE 2 : IF x IS esquerda AND angle IS north
-                THEN turn IS direita;
+    OR : MAX;
+   
+    RULE 1 : IF x IS left AND angle IS south 
+                THEN turn IS turnLeft;
+    
+    RULE 2 : IF x IS left AND angle IS north
+                THEN turn IS turnRight;
 
-    RULE 3 : IF x IS direita AND angle IS north
-                THEN turn IS esquerda;
+    RULE 3 : IF x IS right AND angle IS north
+                THEN turn IS turnLeft;
 
-    RULE 4 : IF x IS direita AND angle IS south
-                THEN turn IS direita;
+    RULE 4 : IF x IS right AND angle IS south
+                THEN turn IS turnRight;
+	
+    RULE 7 : IF y IS down AND angle IS east AND NOT (x IS right OR x IS left) 
+                THEN turn IS turnRight;
 
-    RULE 5 : IF y IS cima AND angle IS west
-                THEN turn IS esquerda;
-
-    RULE 6 : IF y IS cima AND angle IS east
-                THEN turn IS direita;
-
-    RULE 6 : IF y IS baixo AND angle IS east
-                THEN turn IS direita;
-
-    RULE 6 : IF y IS baixo AND angle IS west
-                THEN turn IS esquerda;
+    RULE 8 : IF y IS down AND angle IS west AND NOT (x IS right OR x IS left) 
+                THEN turn IS turnLeft;
+     
+    RULE 9 : IF y IS dungerDown AND ((x IS right OR x IS left) OR angle IS NOT south) AND angle IS east 
+    			THEN turn IS turnLeft;
+    
+    RULE 10 : IF y IS dungerDown AND ((x IS right OR x IS left) OR angle IS NOT south) AND angle IS west 
+    			THEN turn IS turnRight;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK
