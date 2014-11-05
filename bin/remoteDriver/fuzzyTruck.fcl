@@ -1,26 +1,23 @@
-// Block definition (there may be more than one block per file)
 FUNCTION_BLOCK truck
 
-// Define input variables
 VAR_INPUT
     x : REAL;
     y : REAL;
     angle : REAL;
 END_VAR
 
-// Define output variable
 VAR_OUTPUT
     turn : REAL;
 END_VAR
 
 FUZZIFY x
-    TERM left := (-0.5,1) (0.35, 0.85) (0.42, 0.09)  (0.5, 0);
-    TERM right := (0.5, 0) (0.58, 0.09) (0.65, 0.85) (1.5, 1);
+    TERM left := (-0.5,1) (0.38, 0.85) (0.41, 0.12)  (0.5, 0);
+    TERM right := (0.5, 0) (0.59, 0.12) (0.62, 0.85) (1.5, 1);
 END_FUZZIFY
 
 FUZZIFY y
-    TERM down := (-0.5, 0) /*(0.8, 0.7)*/ (1, 0.5);
-    TERM dungerDown := (0.84, 0) /*(0.75, 0.7)*/ (0.85, 0.9) (1, 1);
+    TERM down := (-0.5, 1) (0.25, 0.4) (0.75, 0.4) (1, 1);
+    TERM dangerDown := (0.8, 0) (0.85, 0.7) (1, 1);
 END_FUZZIFY
 
 FUZZIFY angle
@@ -31,23 +28,17 @@ FUZZIFY angle
 END_FUZZIFY
 
 DEFUZZIFY turn
-    TERM turnRight := (-1.5,1) (0,0);
-    TERM turnLeft := (0,0) (1.5,1);
-    // Use 'Center Of Gravity' defuzzification method
+    TERM turnRight := (-1.5,0) (-1.5,1) (0, 0);
+    TERM turnLeft := (0, 0) (1.5,1) (1.5,0);
+    TERM reto := (-0.3, 0) (0, 0.5) (0.3, 0);
     METHOD : COG;
-    // Default value is 0 (if no rule activates defuzzifier)
-    DEFAULT := 0;
+    DEFAULT := 0.1;
 END_DEFUZZIFY
 
 RULEBLOCK No1
-    // Use 'min' for 'and' (also implicit use 'max'
-    // for 'or' to fulfill DeMorgan's Law)
     AND : MIN;
-    // Use 'min' activation method
     ACT : MIN;
-    // Use 'max' accumulation method
     ACCU : MAX;
-    
     OR : MAX;
    
     RULE 1 : IF x IS left AND angle IS south 
@@ -62,17 +53,19 @@ RULEBLOCK No1
     RULE 4 : IF x IS right AND angle IS south
                 THEN turn IS turnRight;
 	
-    RULE 7 : IF y IS down AND angle IS east AND NOT (x IS right OR x IS left) 
-                THEN turn IS turnRight;
-
-    RULE 8 : IF y IS down AND angle IS west AND NOT (x IS right OR x IS left) 
-                THEN turn IS turnLeft;
+	RULE 5 : IF angle IS south THEN turn IS reto;
+	
+//    RULE 7 : IF y IS down AND angle IS east AND x IS NOT right AND x IS NOT left
+//                THEN turn IS turnRight;
+//
+//    RULE 8 : IF y IS down AND angle IS west AND x IS NOT right AND x IS NOT left
+//                THEN turn IS turnLeft;
      
-    RULE 9 : IF y IS dungerDown AND ((x IS right OR x IS left) OR angle IS NOT south) AND angle IS east 
-    			THEN turn IS turnLeft;
-    
-    RULE 10 : IF y IS dungerDown AND ((x IS right OR x IS left) OR angle IS NOT south) AND angle IS west 
-    			THEN turn IS turnRight;
+//    RULE 9 : IF y IS dangerDown AND (x IS right OR x IS left OR angle IS NOT south) AND angle IS east 
+//    			THEN turn IS turnLeft;
+//   
+//    RULE 10 : IF y IS dangerDown AND (x IS right OR x IS left OR angle IS NOT south) AND angle IS west 
+//    			THEN turn IS turnRight;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

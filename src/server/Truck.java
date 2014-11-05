@@ -71,6 +71,8 @@ public class Truck {
 		rotation = axisRot * maxAxisAngle + rotation;
 		if (rotation < 0)
 			rotation += 360;
+		if(rotation > 360)
+			rotation %= 360;
 		this.setPos(dx, dy);
 	}
 
